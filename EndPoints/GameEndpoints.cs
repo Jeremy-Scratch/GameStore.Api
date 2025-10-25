@@ -1,8 +1,9 @@
-using WebApp.Dtos;
-using WebApp.Entities;
-using WebApp.Repositories;
+using GameStore.Api.Dtos;
+using GameStore.Api.Entities;
+using GameStore.Api.Repositories;
 
-namespace WebApp.EndPoints;
+
+namespace GameStore.Api.EndPoints;
 public static class GameEndpoints
 {
     private static GamesRepo gr = new GamesRepo();
