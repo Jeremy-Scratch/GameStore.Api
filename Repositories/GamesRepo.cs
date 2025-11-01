@@ -10,10 +10,10 @@ public class GamesRepo : IGamesRepo
     public GamesRepo (IDbConnection connection)
     {
         _connection = connection;
+        _connection.Open();
     }
     public int AddGame(Games game)
     {
-        _connection.Open();
         var sql = "INSERT INTO games(name,\"genreId\",price,\"releaseDate\") VALUES (@Name, @GenreId, @Price, @ReleaseDate) RETURNING id";
         var newId = _connection.ExecuteScalar<int>(sql, new
         {
