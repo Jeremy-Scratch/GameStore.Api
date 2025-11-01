@@ -1,18 +1,21 @@
-using Npgsql;
 using Dapper;
 using GameStore.Api.Entities;
+using System.Data;
 
 namespace GameStore.Api.Repositories;
 
-public class GamesRepo
+public class GamesRepo : IGamesRepo 
 {
-    private readonly string _ConnectionString = Environment.GetEnvironmentVariable("DB_GAMESTORE", EnvironmentVariableTarget.User)!;
+    private readonly IDbConnection _connection;
+    public GamesRepo (IDbConnection connection)
+    {
+        _connection = connection;
+    }
     public int AddGame(Games game)
     {
-        using var connection = new NpgsqlConnection(_ConnectionString);
-        connection.Open();
+        _connection.Open();
         var sql = "INSERT INTO games(name,\"genreId\",price,\"releaseDate\") VALUES (@Name, @GenreId, @Price, @ReleaseDate) RETURNING id";
-        var newId = connection.ExecuteScalar<int>(sql, new
+        var newId = _connection.ExecuteScalar<int>(sql, new
         {
             game.Name,
             GenreId = game.GenreId.Id,
@@ -23,9 +26,8 @@ public class GamesRepo
     }
     public Games? GetGameById(int id)
     {
-        using var connection = new NpgsqlConnection(_ConnectionString);
         var sql = "SELECT g.id , g.name, g.price, g.\"releaseDate\", ge.id , ge.name FROM genres AS ge JOIN games AS g ON ge.id = g.\"genreId\" WHERE g.id = @Id";
-        return connection.Query<Games, Genres, Games>(sql,
+        return _connection.Query<Games, Genres, Games>(sql,
         (Games, Genres) =>
         {
             Games.GenreId = Genres;
@@ -34,9 +36,8 @@ public class GamesRepo
     }
     public void UpdateGame(Games game)
     {
-        using var connection = new NpgsqlConnection(_ConnectionString);
         var sql = "UPDATE games SET name = @Name, \"genreId\" = @GenreId, price = @Price, \"releaseDate\" = @ReleaseDate WHERE id = @Id";
-        connection.Execute(sql, new
+        _connection.Execute(sql, new
         {
             game.Id,
             game.Name,
@@ -47,9 +48,8 @@ public class GamesRepo
     }
     public IEnumerable<Games> ListAllMovies()
     {
-        using var connection = new NpgsqlConnection(_ConnectionString);
         var sql = "SELECT g.id , g.name, g.price, g.\"releaseDate\", ge.id , ge.name FROM genres AS ge JOIN games AS g ON ge.id = g.\"genreId\"";
-        return connection.Query<Games, Genres, Games>(sql,
+        return _connection.Query<Games, Genres, Games>(sql,
         (Games, Genres) =>
         {
             Games.GenreId = Genres;
@@ -58,7 +58,6 @@ public class GamesRepo
     }
     public void DeleteGame(int id)
     {
-        using var connection = new NpgsqlConnection(_ConnectionString);
-        connection.Execute("DELETE FROM games Where id = @Id", new { Id = id });
+        _connection.Execute("DELETE FROM games Where id = @Id", new { Id = id });
     }
 }

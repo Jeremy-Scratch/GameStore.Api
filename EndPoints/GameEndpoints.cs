@@ -2,28 +2,26 @@ using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
 
-
 namespace GameStore.Api.EndPoints;
 public static class GameEndpoints
 {
-    private static GamesRepo gr = new GamesRepo();
     const string GetGameEndPointName = "GetGame";
     public static RouteGroupBuilder MapGamesEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("games").WithParameterValidation();
 
         //GET /games
-        group.MapGet("/", () =>
+        group.MapGet("/", (IGamesRepo _repo) =>
         {
-            var games = (List<Games>)gr.ListAllMovies();
+            var games = (List<Games>)_repo.ListAllMovies();
             var clientGameList = games.Select(l => new GameDto(l.Id, l.Name, l.GenreId!.Name!, l.Price, l.ReleaseDate)).ToList();
             return Results.Ok(clientGameList);
         });
 
         //GET /games/1 BY ID
-        group.MapGet("/{id}", (int id) =>
+        group.MapGet("/{id}", (int id,IGamesRepo _repo) =>
         {
-            var game = gr.GetGameById(id);
+            var game = _repo.GetGameById(id);
             if (game is null)
             {
                 return Results.NotFound();
@@ -37,11 +35,10 @@ public static class GameEndpoints
                 game.ReleaseDate
             );
             return Results.Ok(responseDto);
-
         }).WithName(GetGameEndPointName);
 
         //POST /games
-        group.MapPost("/", (CreateGameDto newGame) =>
+        group.MapPost("/", (CreateGameDto newGame, IGamesRepo _repo) =>
         {
             var game = new Games
             {
@@ -50,12 +47,12 @@ public static class GameEndpoints
                 Price = newGame.Price,
                 ReleaseDate = newGame.ReleaseDate
             };
-            var newId = gr.AddGame(game);
+            var newId = _repo.AddGame(game);
             return Results.CreatedAtRoute(GetGameEndPointName, new { id =newId },newGame);
         });
 
         // PUT/games
-        group.MapPut("/{id}", (int id, UpdateGameDto updatedDto) =>
+        group.MapPut("/{id}", (int id, UpdateGameDto updatedDto, IGamesRepo _repo) =>
         {
             var updatedGame = new Games
             {
@@ -65,14 +62,14 @@ public static class GameEndpoints
                 Price = updatedDto.Price,
                 ReleaseDate = updatedDto.ReleaseDate
             };
-            gr.UpdateGame(updatedGame);
+            _repo.UpdateGame(updatedGame);
             return Results.NoContent();
         });
 
         //DELETE/ games
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", (int id, IGamesRepo _repo) =>
         {
-           gr.DeleteGame(id);
+           _repo.DeleteGame(id);
 
             return Results.NoContent();
         });
