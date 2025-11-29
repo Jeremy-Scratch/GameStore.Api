@@ -1,6 +1,7 @@
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
+using System.Linq;
 
 namespace GameStore.Api.EndPoints;
 public static class GameEndpoints
@@ -11,7 +12,7 @@ public static class GameEndpoints
         var group = app.MapGroup("games").WithParameterValidation();
 
         //GET /games
-        group.MapGet("/", (IGamesRepo gamesRepo) =>
+        group.MapGet("/", (IGamesRepo gamesRepo) => 
         {
             var games = gamesRepo.ListAllMovies().ToList();
             var clientGameList = games.Select(l => new GameDto(l.Id, l.Name, l.GenreId!.Name!, l.Price, l.ReleaseDate)).ToList();
