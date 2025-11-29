@@ -13,4 +13,5 @@ builder.Services.AddScoped<IGamesRepo, GamesRepo>();
 var app = builder.Build();
 
 app.MapGamesEndpoints();
+
 app.Run();
