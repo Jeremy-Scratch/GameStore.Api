@@ -1,12 +1,11 @@
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
-using System.Linq;
 
 namespace GameStore.Api.EndPoints;
 public static class GameEndpoints
 {
-    const string GetGameEndPointName = "GetGame";
+    const string route = "GetGame";
     public static RouteGroupBuilder MapGamesEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("games").WithParameterValidation();
@@ -35,7 +34,7 @@ public static class GameEndpoints
                 game.ReleaseDate
             );
             return Results.Ok(responseDto);
-        }).WithName(GetGameEndPointName);
+        }).WithName(route);
         //POST /games
         group.MapPost("/", async (CreateGameDto newGame, IGamesRepo gamesRepo) =>
         {
@@ -47,7 +46,7 @@ public static class GameEndpoints
                 ReleaseDate = newGame.ReleaseDate
             };
             var newId = await gamesRepo.Add(game);
-            return Results.CreatedAtRoute(GetGameEndPointName, new { id =newId },newGame);
+            return Results.CreatedAtRoute(route, new { id =newId },newGame);
         });
         // PUT/games
         group.MapPut("/{id}", async (int id, UpdateGameDto updatedDto, IGamesRepo gamesRepo) =>
