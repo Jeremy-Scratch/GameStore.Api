@@ -12,10 +12,10 @@ public class GamesRepo : IGamesRepo
         _connection = connection;
         _connection.Open();
     }
-    public int AddGame(Games game)
+    public async Task<int> AddGame(Games game)
     {
         var sql = "INSERT INTO games(name,\"genreId\",price,\"releaseDate\") VALUES (@Name, @GenreId, @Price, @ReleaseDate) RETURNING id";
-        var newId = _connection.ExecuteScalar<int>(sql, new
+        var newId = await _connection.ExecuteScalarAsync<int>(sql, new
         {
             game.Name,
             GenreId = game.GenreId.Id,
@@ -59,5 +59,18 @@ public class GamesRepo : IGamesRepo
     public void DeleteGame(int id)
     {
         _connection.Execute("DELETE FROM games Where id = @Id", new { Id = id });
+    }
+
+    public async Task<int> CreateUser(Users user)
+    {
+        var sql = "INSERT INTO users(name,email,\"passwordHash\",role) VALUES (@Name, @Email, @PasswordHash, @Role) RETURNING id";
+        var newId = await _connection.ExecuteScalarAsync<int>(sql, new
+        {
+            user.Name,
+            user.Email,
+            user.PasswordHash,
+            user.Role
+        });
+        return newId;
     }
 }
