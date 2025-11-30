@@ -10,8 +10,18 @@ var connectionString = builder.Configuration.GetValue<string>("DB_GAMESTORE");
 builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connectionString));
 builder.Services.AddScoped<IGamesRepo, GamesRepo>();
 builder.Services.AddScoped<IUsersRepo, UsersRepo>();
+//CORS 
+builder.Services.AddCors(option =>
+{
+    option.AddPolicy("AllowAll",
+    policy => policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin());
+});
 
 var app = builder.Build();
+//CORS GOES BEFORE ENDPOINTS
+app.UseCors("AllowAll");
 
 app.MapGamesEndpoints();
 app.MapUserEndpoints();
