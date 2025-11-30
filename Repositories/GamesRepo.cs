@@ -64,16 +64,4 @@ public class GamesRepo : IGamesRepo
     {
        await _connection.ExecuteAsync("DELETE FROM games Where id = @Id", new { Id = id });
     }
-    public async Task<int> CreateUser(Users user)
-    {
-        var sql = "INSERT INTO users(name,email,\"passwordHash\",role) VALUES (@Name, @Email, @PasswordHash, @Role) RETURNING id";
-        var newId = await _connection.ExecuteScalarAsync<int>(sql, new
-        {
-            user.Name,
-            user.Email,
-            user.PasswordHash,
-            user.Role
-        });
-        return newId;
-    }
 }
