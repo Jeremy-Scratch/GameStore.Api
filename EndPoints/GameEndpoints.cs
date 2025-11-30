@@ -13,14 +13,14 @@ public static class GameEndpoints
         //GET /games
         group.MapGet("/", async (IGamesRepo gamesRepo) => 
         {
-            var games = await gamesRepo.ListAllMovies();
+            var games = await gamesRepo.ListAll();
             var clientGameList = games.Select(l => new GameDto(l.Id, l.Name, l.GenreId!.Name!, l.Price, l.ReleaseDate)).ToList();
             return Results.Ok(clientGameList);
         });
         //GET /games/1 BY ID
         group.MapGet("/{id}", async (int id,IGamesRepo gamesRepo) =>
         {
-            var game = await gamesRepo.GetGameById(id);
+            var game = await gamesRepo.GetById(id);
             
             if (game is null)
             {
@@ -46,7 +46,7 @@ public static class GameEndpoints
                 Price = newGame.Price,
                 ReleaseDate = newGame.ReleaseDate
             };
-            var newId = await gamesRepo.AddGame(game);
+            var newId = await gamesRepo.Add(game);
             return Results.CreatedAtRoute(GetGameEndPointName, new { id =newId },newGame);
         });
         // PUT/games
@@ -60,13 +60,13 @@ public static class GameEndpoints
                 Price = updatedDto.Price,
                 ReleaseDate = updatedDto.ReleaseDate
             };
-            await gamesRepo.UpdateGame(updatedGame);
+            await gamesRepo.Update(updatedGame);
             return Results.NoContent();
         });
         //DELETE/ games
         group.MapDelete("/{id}", async (int id, IGamesRepo gamesRepo) =>
         {
-           await gamesRepo.DeleteGame(id);
+           await gamesRepo.Delete(id);
 
             return Results.NoContent();
         });

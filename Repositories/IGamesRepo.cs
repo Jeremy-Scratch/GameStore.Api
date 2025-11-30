@@ -2,9 +2,9 @@ using GameStore.Api.Entities;
 namespace GameStore.Api.Repositories;
 public interface IGamesRepo
 {
-    Task<int> AddGame(Games game);
-    Task<Games?> GetGameById(int id);
-    Task UpdateGame(Games game);
-    public Task<IEnumerable<Games>> ListAllMovies();
-    public Task DeleteGame(int id);
+    Task<int> Add(Games game);
+    Task<Games?> GetById(int id);
+    Task Update(Games game);
+    public Task<IEnumerable<Games>> ListAll();
+    public Task Delete(int id);
 }

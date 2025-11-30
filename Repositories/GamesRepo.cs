@@ -12,7 +12,7 @@ public class GamesRepo : IGamesRepo
         _connection = connection;
         _connection.Open();
     }
-    public async Task<int> AddGame(Games game)
+    public async Task<int> Add(Games game)
     {
         var sql = "INSERT INTO games(name,\"genreId\",price,\"releaseDate\") VALUES (@Name, @GenreId, @Price, @ReleaseDate) RETURNING id";
         var newId = await _connection.ExecuteScalarAsync<int>(sql, new
@@ -24,7 +24,7 @@ public class GamesRepo : IGamesRepo
         });
         return newId;
     }
-    public async Task<Games?> GetGameById(int id)
+    public async Task<Games?> GetById(int id)
     {
         var sql = "SELECT g.id , g.name, g.price, g.\"releaseDate\", ge.id , ge.name FROM genres AS ge JOIN games AS g ON ge.id = g.\"genreId\" WHERE g.id = @Id";
         var game = await _connection.QueryAsync<Games, Genres, Games>(sql,
@@ -37,7 +37,7 @@ public class GamesRepo : IGamesRepo
 
         return game.FirstOrDefault();
     }
-    public async Task UpdateGame(Games game)
+    public async Task Update(Games game)
     {
         var sql = "UPDATE games SET name = @Name, \"genreId\" = @GenreId, price = @Price, \"releaseDate\" = @ReleaseDate WHERE id = @Id";
         await _connection.ExecuteAsync(sql, new
@@ -49,7 +49,7 @@ public class GamesRepo : IGamesRepo
             game.ReleaseDate
         });
     }
-    public async Task<IEnumerable<Games>> ListAllMovies()
+    public async Task<IEnumerable<Games>> ListAll()
     {
         var sql = "SELECT g.id , g.name, g.price, g.\"releaseDate\", ge.id , ge.name FROM genres AS ge JOIN games AS g ON ge.id = g.\"genreId\"";
         var games = await _connection.QueryAsync<Games, Genres, Games>(sql,
@@ -60,7 +60,7 @@ public class GamesRepo : IGamesRepo
         }, splitOn: "id");
         return games;
     }
-    public async Task DeleteGame(int id)
+    public async Task Delete(int id)
     {
        await _connection.ExecuteAsync("DELETE FROM games Where id = @Id", new { Id = id });
     }
