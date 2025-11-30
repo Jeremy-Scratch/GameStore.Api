@@ -50,7 +50,21 @@ public static class UserEndpoints
             var newId = await usersRepo.Create(user);
             return Results.CreatedAtRoute(route, new { id = newId }, newUser);
         });
-
+        //Login validation 
+        group.MapPost("/login", async (LoginDto userLog, IUsersRepo usersRepo) =>
+        {
+            var userCredentials = await usersRepo.CheckEmail(userLog.Email);
+            if (userCredentials is null)
+            {
+                return Results.Unauthorized();
+            }
+            var passwordHashed = HashPassword(userLog.Password);
+            if (passwordHashed != userCredentials!.PasswordHash)
+            {
+                return Results.Unauthorized();
+            }
+            return Results.Ok(new { name = userCredentials.Name });
+        });
         return group;
     }
 }
