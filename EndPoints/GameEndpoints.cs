@@ -10,19 +10,18 @@ public static class GameEndpoints
     public static RouteGroupBuilder MapGamesEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("games").WithParameterValidation();
-
         //GET /games
-        group.MapGet("/", (IGamesRepo gamesRepo) => 
+        group.MapGet("/", async (IGamesRepo gamesRepo) => 
         {
-            var games = gamesRepo.ListAllMovies().ToList();
+            var games = await gamesRepo.ListAllMovies();
             var clientGameList = games.Select(l => new GameDto(l.Id, l.Name, l.GenreId!.Name!, l.Price, l.ReleaseDate)).ToList();
             return Results.Ok(clientGameList);
         });
-
         //GET /games/1 BY ID
-        group.MapGet("/{id}", (int id,IGamesRepo gamesRepo) =>
+        group.MapGet("/{id}", async (int id,IGamesRepo gamesRepo) =>
         {
-            var game = gamesRepo.GetGameById(id);
+            var game = await gamesRepo.GetGameById(id);
+            
             if (game is null)
             {
                 return Results.NotFound();
@@ -37,9 +36,8 @@ public static class GameEndpoints
             );
             return Results.Ok(responseDto);
         }).WithName(GetGameEndPointName);
-
         //POST /games
-        group.MapPost("/", (CreateGameDto newGame, IGamesRepo gamesRepo) =>
+        group.MapPost("/", async (CreateGameDto newGame, IGamesRepo gamesRepo) =>
         {
             var game = new Games
             {
@@ -48,12 +46,11 @@ public static class GameEndpoints
                 Price = newGame.Price,
                 ReleaseDate = newGame.ReleaseDate
             };
-            var newId = gamesRepo.AddGame(game);
+            var newId = await gamesRepo.AddGame(game);
             return Results.CreatedAtRoute(GetGameEndPointName, new { id =newId },newGame);
         });
-
         // PUT/games
-        group.MapPut("/{id}", (int id, UpdateGameDto updatedDto, IGamesRepo gamesRepo) =>
+        group.MapPut("/{id}", async (int id, UpdateGameDto updatedDto, IGamesRepo gamesRepo) =>
         {
             var updatedGame = new Games
             {
@@ -63,14 +60,13 @@ public static class GameEndpoints
                 Price = updatedDto.Price,
                 ReleaseDate = updatedDto.ReleaseDate
             };
-            gamesRepo.UpdateGame(updatedGame);
+            await gamesRepo.UpdateGame(updatedGame);
             return Results.NoContent();
         });
-
         //DELETE/ games
-        group.MapDelete("/{id}", (int id, IGamesRepo gamesRepo) =>
+        group.MapDelete("/{id}", async (int id, IGamesRepo gamesRepo) =>
         {
-           gamesRepo.DeleteGame(id);
+           await gamesRepo.DeleteGame(id);
 
             return Results.NoContent();
         });
