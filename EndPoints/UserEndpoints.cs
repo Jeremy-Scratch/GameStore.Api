@@ -1,6 +1,7 @@
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
+using GameStore.Api.Services;
 using static BCrypt.Net.BCrypt;
 
 namespace GameStore.Api.EndPoints;
@@ -53,17 +54,18 @@ public static class UserEndpoints
         //Login validation 
         group.MapPost("/login", async (LoginDto userLog, IUsersRepo usersRepo) =>
         {
-            var userCredentials = await usersRepo.CheckEmail(userLog.Email);
-            if (userCredentials is null)
+            var user = await usersRepo.CheckEmail(userLog.Email);
+            if (user is null)
             {
                 return Results.Unauthorized();
             }
-            var passwordHashed = HashPassword(userLog.Password);
-            if (passwordHashed != userCredentials!.PasswordHash)
+            var isValid = PasswordVerify.Check(userLog.Password, user.PasswordHash);
+            if (!isValid)
             {
                 return Results.Unauthorized();
             }
-            return Results.Ok(new { name = userCredentials.Name });
+            var token = await TokenGenerator.GenerateToken();
+            return Results.Ok(new { Token = token });
         });
         return group;
     }
