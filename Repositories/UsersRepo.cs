@@ -25,4 +25,9 @@ public class UsersRepo : IUsersRepo
         });
         return newId;
     }
+    public async Task<Users?> CheckEmail(string email)
+    {
+        var sql = "SELECT * FROM users WHERE email = @Email";
+        return await _connection.QuerySingleOrDefaultAsync<Users>(sql, new { Email = email });
+    }
 }

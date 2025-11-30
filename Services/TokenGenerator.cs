@@ -4,7 +4,7 @@ namespace GameStore.Api.Services;
 
 public static class TokenGenerator
 {
-    public static string GenerateToken()
+    public static async Task<string> GenerateToken()
     {
         var randomNumber = new byte[32];
 

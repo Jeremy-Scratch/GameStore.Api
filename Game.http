@@ -28,3 +28,13 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:5180/games/7
+
+###
+POST http://localhost:5180/users
+Content-Type: application/json
+
+{
+ "name": "testt",
+ "email": "test@test.com",
+ "password": "test123"
+}

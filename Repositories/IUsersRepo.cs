@@ -3,4 +3,6 @@ namespace GameStore.Api.Repositories;
 public interface IUsersRepo
 {
     Task<int> CreateUser(Users user);
+
+    Task<Users?> CheckEmail(string email);
 }

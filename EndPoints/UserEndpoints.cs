@@ -1,19 +1,19 @@
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
+using GameStore.Api.Repositories;
 using static BCrypt.Net.BCrypt;
 
 namespace GameStore.Api.EndPoints;
 
-public class UserEndpoints
+public static class UserEndpoints
 {
-    public RouteGroupBuilder MapUserEndpoints(WebApplication app)
+    public static RouteGroupBuilder MapUserEndpoints( this WebApplication app)
     {
         var group = app.MapGroup("users").WithParameterValidation();
 
-        group.MapPost("/", (CreateUserDto newUser) =>
+        group.MapPost("/",  async (CreateUserDto newUser,IUsersRepo usersRepo) =>
         {
-
-            var passwordHashed = HashPassword(newUser.Password);
+            var passwordHashed =  HashPassword(newUser.Password);
             var user = new Users
             {
                 Name = newUser.Name,
@@ -21,13 +21,10 @@ public class UserEndpoints
                 PasswordHash = passwordHashed,
                 Role = "Customer"
             };
-            return Results.Ok();
+            var newId =await usersRepo.CreateUser(user);
+            return Results.Ok(newUser);
         });
 
         return group;
     }
-    
-
-    
-
 }
