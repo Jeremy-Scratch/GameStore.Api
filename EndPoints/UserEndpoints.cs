@@ -13,7 +13,15 @@ public static class UserEndpoints
 
         group.MapPost("/",  async (CreateUserDto newUser,IUsersRepo usersRepo) =>
         {
-            var passwordHashed =  HashPassword(newUser.Password);
+
+            var existUser = await usersRepo.CheckEmail(newUser.Email);
+            if (existUser is not null)
+            {
+                return Results.Conflict("This Email is already in use");
+            }
+
+            var passwordHashed = HashPassword(newUser.Password);
+
             var user = new Users
             {
                 Name = newUser.Name,
