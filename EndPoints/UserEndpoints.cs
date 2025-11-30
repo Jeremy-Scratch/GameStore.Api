@@ -29,7 +29,7 @@ public static class UserEndpoints
                 PasswordHash = passwordHashed,
                 Role = "Customer"
             };
-            var newId =await usersRepo.CreateUser(user);
+            var newId =await usersRepo.Create(user);
             return Results.Ok(newUser);
         });
 

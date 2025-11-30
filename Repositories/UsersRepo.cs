@@ -12,8 +12,7 @@ public class UsersRepo : IUsersRepo
         _connection = connection;
         _connection.Open();
     }
-
-    public async Task<int> CreateUser(Users user)
+    public async Task<int> Create(Users user)
     {
         var sql = "INSERT INTO users(name,email,\"passwordHash\",role) VALUES (@Name, @Email, @PasswordHash, @Role) RETURNING id";
         var newId = await _connection.ExecuteScalarAsync<int>(sql, new
